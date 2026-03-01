@@ -5,7 +5,9 @@
     "dev": "next dev"
   },
   "dependencies": {
+    "@sparticuz/chromium": "^143.0.4",
     "next": "14.1.0",
+    "puppeteer-core": "^24.37.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
