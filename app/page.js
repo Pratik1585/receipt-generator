@@ -27,25 +27,20 @@ export default function Home() {
         return;
       }
 
-      const pdfBlob = await response.blob();
-      const pdfUrl = URL.createObjectURL(pdfBlob);
+      // Convert response to blob
+      const blob = await response.blob();
 
-      const newWindow = window.open();
-      newWindow.document.write(`
-        <html>
-          <head>
-            <title>Receipt Preview</title>
-          </head>
-          <body style="margin:0">
-            <iframe 
-              src="${pdfUrl}" 
-              frameborder="0" 
-              style="width:100%; height:100vh;">
-            </iframe>
-          </body>
-        </html>
-      `);
+      // Create file URL
+      const fileURL = window.URL.createObjectURL(blob);
 
+      // Create temporary link and trigger download/open
+      const link = document.createElement("a");
+      link.href = fileURL;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.click();
+
+      // WhatsApp message
       const message = `🧾 Payment Receipt
 
 Dear ${form.customer || ""},
