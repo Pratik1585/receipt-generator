@@ -1,11 +1,13 @@
-export const runtime = "nodejs";
-
 import chromium from "@sparticuz/chromium";
 import puppeteer from "puppeteer-core";
 
-export async function POST(req) {
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ message: "Method not allowed" });
+  }
+
   try {
-    const data = await req.json();
+    const data = req.body;
 
     const html = `
       <html>
@@ -59,7 +61,6 @@ export async function POST(req) {
 
     const browser = await puppeteer.launch({
       args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
       executablePath: await chromium.executablePath(),
       headless: chromium.headless,
     });
@@ -67,21 +68,18 @@ export async function POST(req) {
     const page = await browser.newPage();
     await page.setContent(html);
 
-    const pdfBuffer = await page.pdf({
+    const pdf = await page.pdf({
       format: "A4",
       printBackground: true,
     });
 
     await browser.close();
 
-    return new Response(pdfBuffer, {
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": "inline; filename=receipt.pdf",
-      },
-    });
+    res.setHeader("Content-Type", "application/pdf");
+    res.send(pdf);
+
   } catch (error) {
     console.error(error);
-    return new Response("Error generating PDF", { status: 500 });
+    res.status(500).json({ message: "PDF generation failed" });
   }
 }
