@@ -76,7 +76,11 @@ export default async function handler(req, res) {
     await browser.close();
 
     res.setHeader("Content-Type", "application/pdf");
-    res.send(pdf);
+res.setHeader(
+  "Content-Disposition",
+  "inline; filename=receipt.pdf"
+);
+res.status(200).send(pdf);
 
   } catch (error) {
     console.error(error);
