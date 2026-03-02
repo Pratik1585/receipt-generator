@@ -13,7 +13,7 @@ export default function Home() {
     try {
       setLoading(true);
 
-      const res = await fetch("/api/generate-receipt", {
+      const response = await fetch("/api/generate-receipt", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -21,15 +21,30 @@ export default function Home() {
         body: JSON.stringify(form),
       });
 
-      if (!res.ok) {
+      if (!response.ok) {
         alert("Failed to generate receipt");
         setLoading(false);
         return;
       }
 
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      window.open(url);
+      const pdfBlob = await response.blob();
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+
+      const newWindow = window.open();
+      newWindow.document.write(`
+        <html>
+          <head>
+            <title>Receipt Preview</title>
+          </head>
+          <body style="margin:0">
+            <iframe 
+              src="${pdfUrl}" 
+              frameborder="0" 
+              style="width:100%; height:100vh;">
+            </iframe>
+          </body>
+        </html>
+      `);
 
       const message = `🧾 Payment Receipt
 
@@ -67,7 +82,6 @@ Thank you 🙏`;
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
           <Input label="Business Name" onChange={(v)=>handleChange("businessName", v)} />
           <Input label="Business Address" onChange={(v)=>handleChange("address", v)} />
           <Input label="Phone Number" onChange={(v)=>handleChange("phone", v)} />
@@ -77,7 +91,6 @@ Thank you 🙏`;
           <Input label="Amount" onChange={(v)=>handleChange("amount", v)} />
           <Input label="Amount in Words" onChange={(v)=>handleChange("amountWords", v)} />
           <Input label="WhatsApp Number" onChange={(v)=>handleChange("whatsapp", v)} />
-
         </div>
 
         <button
